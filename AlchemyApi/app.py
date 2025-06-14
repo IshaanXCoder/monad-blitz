@@ -86,12 +86,12 @@ def group_by_category(transactions):
 @app.route("/analyze-transactions", methods=["POST"])
 def analyze():
     data = request.get_json()
-    txs = data.get("transactions", [])
+    txs = data.get("transfers", [])
     categorized_txs = group_by_category(txs)
     tx_json_str = str(categorized_txs)[:12000]  # Limit size to avoid token overload
     prompt = prompt_template.format(tx_json=tx_json_str)
     response = llm.invoke(prompt)
-    print("LLM Response:", response)
+    print("LLM Response:", tx_json_str)
     return  clean_and_parse_json(response)
     return jsonify({"response": response})
 
