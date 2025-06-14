@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useContext } from "react"
 import { useAccount } from "wagmi"
 import { Nav } from "@/components/nav"
 import { Footer } from "@/components/footer"
@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Send, Bot, User } from "lucide-react"
 import { motion } from "framer-motion"
+import { useTransaction } from "@/components/TransactionContext"
 
 interface Message {
   id: string
@@ -35,6 +36,10 @@ const therapistResponses = [
 ]
 
 export default function ChatPage() {
+
+  const { response } = useTransaction()
+  console.log("Response from TransactionContext:", response)
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -48,32 +53,56 @@ export default function ChatPage() {
   const [isTyping, setIsTyping] = useState(false)
   const { address, isConnected } = useAccount()
 
-  const sendMessage = async () => {
-    if (!input.trim()) return
+ const sendMessage = async () => {
+  if (!input.trim()) return
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: input,
-      sender: "user",
+  const userMessage: Message = {
+    id: Date.now().toString(),
+    content: input,
+    sender: "user",
+    timestamp: new Date(),
+  }
+
+  setMessages((prev) => [...prev, userMessage])
+  setInput("")
+  setIsTyping(true)
+
+  try {
+    const res = await fetch("http://localhost:5000/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: input,
+        transactions: response, // this is your global transaction data
+      }),
+    })
+
+    if (!res.ok) throw new Error("Flask API error")
+    const data = await res.json()
+
+    const botResponse: Message = {
+      id: (Date.now() + 1).toString(),
+      content: data.reply || "AI had no roast today 😶",
+      sender: "bot",
       timestamp: new Date(),
     }
 
-    setMessages((prev) => [...prev, userMessage])
-    setInput("")
-    setIsTyping(true)
-
-    // Simulate AI response
-    setTimeout(() => {
-      const botResponse: Message = {
+    setMessages((prev) => [...prev, botResponse])
+  } catch (error) {
+    setMessages((prev) => [
+      ...prev,
+      {
         id: (Date.now() + 1).toString(),
-        content: therapistResponses[Math.floor(Math.random() * therapistResponses.length)],
+        content: "Oops, Dr. Wojak couldn't reach the backend. Try again later.",
         sender: "bot",
         timestamp: new Date(),
-      }
-      setMessages((prev) => [...prev, botResponse])
-      setIsTyping(false)
-    }, 1500)
+      },
+    ])
+  } finally {
+    setIsTyping(false)
   }
+}
+
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -82,114 +111,129 @@ export default function ChatPage() {
     }
   }
 
+  if (!response) {
+    // Render message box if no transactions in global state
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-8 border rounded-md shadow-lg max-w-md">
+          <h2 className="text-2xl font-semibold mb-4">No transaction data available</h2>
+          <p className="text-muted-foreground">
+            Please load or fetch transaction data to view this page.
+          </p>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="min-h-screen flex flex-col">
       <Nav />
-      <div className="flex-1 pt-24 pb-12 px-4">
-        <div className="max-w-2xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-center md:text-left">
-            {isConnected && (
-              <div className="mb-4 flex items-center justify-center md:justify-start">
-                <span className="bg-muted text-xs font-mono px-3 py-1 rounded-full border border-border">
-                  Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
-                </span>
-              </div>
-            )}
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Cope <span className="text-primary">Session with Dr. Wojak</span>
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              Vent about your bags to our AI therapist. He's seen worse (probably)
-            </p>
-          </motion.div>
-
-          <Card className="glassmorphism border-primary/20 h-[600px] flex flex-col">
-            <CardHeader className="border-b border-border">
-              <CardTitle className="flex items-center gap-2">
-                <Bot className="h-5 w-5 text-primary" />
-                Dr. Wojak - Bag Therapist
-                <span className="text-sm text-green-500 ml-auto">● Online</span>
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent className="flex-1 p-0 flex flex-col">
-              <ScrollArea className="flex-1 p-4">
-                <div className="space-y-4">
-                  {messages.map((message) => (
-                    <motion.div
-                      key={message.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={`flex gap-3 ${message.sender === "user" ? "flex-row-reverse" : ""}`}
-                    >
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback
-                          className={message.sender === "bot" ? "bg-primary text-primary-foreground" : "bg-secondary"}
-                        >
-                          {message.sender === "bot" ? <Bot className="h-4 w-4" /> : <User className="h-4 w-4" />}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className={`max-w-[80%] ${message.sender === "user" ? "text-right" : ""}`}>
-                        <div
-                          className={`p-3 rounded-lg ${
-                            message.sender === "user" ? "bg-primary text-primary-foreground ml-auto" : "bg-muted"
-                          }`}
-                        >
-                          <p className="text-sm">{message.content}</p>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">{message.timestamp.toLocaleTimeString()}</p>
-                      </div>
-                    </motion.div>
-                  ))}
-
-                  {isTyping && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          <Bot className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="bg-muted p-3 rounded-lg">
-                        <div className="flex gap-1">
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" />
-                          <div
-                            className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
-                            style={{ animationDelay: "0.1s" }}
-                          />
-                          <div
-                            className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
-                            style={{ animationDelay: "0.2s" }}
-                          />
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
+        <div className="flex-1 pt-24 pb-12 px-4">
+          <div className="max-w-2xl mx-auto">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-center md:text-left">
+              {isConnected && (
+                <div className="mb-4 flex items-center justify-center md:justify-start">
+                  <span className="bg-muted text-xs font-mono px-3 py-1 rounded-full border border-border">
+                    Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
+                  </span>
                 </div>
-              </ScrollArea>
+              )}
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                Cope <span className="text-primary">Session with Dr. Wojak</span>
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                Vent about your bags to our AI therapist. He's seen worse (probably)
+              </p>
+            </motion.div>
 
-              <div className="p-4 border-t border-border">
-                <div className="flex gap-2">
-                  <Input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Tell Dr. Pepe about your crypto trauma..."
-                    className="flex-1"
-                    disabled={isTyping}
-                  />
-                  <Button onClick={sendMessage} disabled={!input.trim() || isTyping} size="icon" className="hover-glow">
-                    <Send className="h-4 w-4" />
-                  </Button>
+            <Card className="glassmorphism border-primary/20 h-[600px] flex flex-col">
+              <CardHeader className="border-b border-border">
+                <CardTitle className="flex items-center gap-2">
+                  <Bot className="h-5 w-5 text-primary" />
+                  Dr. Wojak - Bag Therapist
+                  <span className="text-sm text-green-500 ml-auto">● Online</span>
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="flex-1 p-0 flex flex-col">
+                <ScrollArea className="flex-1 p-4">
+                  <div className="space-y-4">
+                    {messages.map((message) => (
+                      <motion.div
+                        key={message.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`flex gap-3 ${message.sender === "user" ? "flex-row-reverse" : ""}`}
+                      >
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback
+                            className={message.sender === "bot" ? "bg-primary text-primary-foreground" : "bg-secondary"}
+                          >
+                            {message.sender === "bot" ? <Bot className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className={`max-w-[80%] ${message.sender === "user" ? "text-right" : ""}`}>
+                          <div
+                            className={`p-3 rounded-lg ${
+                              message.sender === "user" ? "bg-primary text-primary-foreground ml-auto" : "bg-muted"
+                            }`}
+                          >
+                            <p className="text-sm">{message.content}</p>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">{message.timestamp.toLocaleTimeString()}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+
+                    {isTyping && (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            <Bot className="h-4 w-4" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="bg-muted p-3 rounded-lg">
+                          <div className="flex gap-1">
+                            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" />
+                            <div
+                              className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                              style={{ animationDelay: "0.1s" }}
+                            />
+                            <div
+                              className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                              style={{ animationDelay: "0.2s" }}
+                            />
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
+                </ScrollArea>
+
+                <div className="p-4 border-t border-border">
+                  <div className="flex gap-2">
+                    <Input
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Tell Dr. Pepe about your crypto trauma..."
+                      className="flex-1"
+                      disabled={isTyping}
+                    />
+                    <Button onClick={sendMessage} disabled={!input.trim() || isTyping} size="icon" className="hover-glow">
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Press Enter to send • Dr. Pepe is here to help (and roast) you
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Press Enter to send • Dr. Pepe is here to help (and roast) you
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
-      <Footer />
+        <Footer />
+
     </main>
   )
 }

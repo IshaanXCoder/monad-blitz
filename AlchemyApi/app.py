@@ -59,6 +59,24 @@ Your entire response must be only the raw JSON array — nothing else
 """
 )
 
+chat_template = PromptTemplate(
+    input_variables=["tx_json", "message"],
+    template="""
+You need to suggest improvements to a user based on the stats analysis that you recieved and reply to their message in a fun, sarcastic, and helpful way.
+
+Analysis Json:
+{tx_json}
+
+message:
+{message}
+
+Talk in nice funky way and suggest genuine recommendations to improve their trading behavior.
+Give me nice markdown formatted response with emojis and fun language.
+Keep replies short and to the point, no more than 3-4 sentences.
+"""
+)
+
+
 def group_by_category(transactions):
     categorized = {
         "external": [],
@@ -93,7 +111,22 @@ def analyze():
     response = llm.invoke(prompt)
     print("LLM Response:", tx_json_str)
     return  clean_and_parse_json(response)
-    return jsonify({"response": response})
+  
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.get_json()
+    user_message = data.get("message", "")
+    tx_data = data.get("transactions", [])
+    print(tx_data)
+
+    prompt = chat_template.format(tx_json=tx_data, message=user_message)
+
+    try:
+        response = llm.invoke(prompt)
+        return jsonify({ "reply": response.strip('\n') })
+    except Exception as e:
+        print("Error invoking LLM:", e)
+        return jsonify({ "reply": "Oops, Dr. Wojak is having an existential crisis. Try again later." }), 500
 
 
 if __name__ == "__main__":

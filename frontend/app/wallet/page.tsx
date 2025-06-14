@@ -5,13 +5,16 @@ import { Nav } from "@/components/nav"
 import { Footer } from "@/components/footer"
 import { FunkyWallet } from "@/components/funky-wallet"
 import { motion } from "framer-motion"
+import { useTransaction } from "@/components/TransactionContext"
 
 export default function WalletPage() {
+  const { setResponse } = useTransaction()
   const [transactions, setTransactions] = useState<any[] | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
 useEffect(() => {
+
   const sendTransactions = async () => {
     setLoading(true);
     setError(null);
@@ -34,6 +37,7 @@ useEffect(() => {
       if (!apiRes.ok) throw new Error("API error");
 
       const json = await apiRes.json();
+      setResponse(json);
       if (json && json.error) throw new Error(json.error);
 
       setTransactions(Array.isArray(json) ? json : [json]);
