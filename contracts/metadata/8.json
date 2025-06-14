@@ -1,0 +1,10 @@
+{
+  "name": "Degen Personality #8: Snipe Samurai",
+  "description": "Buys perfect lows, but never sells.",
+  "image": "ipfs://bafybeigd75sz7defee27s22uf7jm5egefdnndcufdlw65znxsxslzo4dfa/8.png",
+  "attributes": [
+    { "trait_type": "Wallet Score", "value": 3 },
+    { "trait_type": "Most Held Token", "value": "$WETH" },
+    { "trait_type": "Degen Type", "value": "Snipe Samurai" }
+  ]
+} 

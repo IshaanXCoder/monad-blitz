@@ -1,0 +1,10 @@
+{
+  "name": "Degen Personality #5: DAO Ghost",
+  "description": "Votes once, never again.",
+  "image": "ipfs://bafybeigd75sz7defee27s22uf7jm5egefdnndcufdlw65znxsxslzo4dfa/5.png",
+  "attributes": [
+    { "trait_type": "Wallet Score", "value": 2 },
+    { "trait_type": "Most Held Token", "value": "$UNI" },
+    { "trait_type": "Degen Type", "value": "DAO Ghost" }
+  ]
+} 

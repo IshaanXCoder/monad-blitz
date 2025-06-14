@@ -1,0 +1,10 @@
+{
+  "name": "Degen Personality #9: Idle Whale",
+  "description": "Sitting on stables since 2021.",
+  "image": "ipfs://bafybeigd75sz7defee27s22uf7jm5egefdnndcufdlw65znxsxslzo4dfa/9.png",
+  "attributes": [
+    { "trait_type": "Wallet Score", "value": 4 },
+    { "trait_type": "Most Held Token", "value": "$USDC" },
+    { "trait_type": "Degen Type", "value": "Idle Whale" }
+  ]
+} 

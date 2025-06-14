@@ -1,0 +1,10 @@
+{
+  "name": "Degen Personality #7: Top Signal",
+  "description": "Every token pumped 2x after he sold.",
+  "image": "ipfs://bafybeigd75sz7defee27s22uf7jm5egefdnndcufdlw65znxsxslzo4dfa/7.png",
+  "attributes": [
+    { "trait_type": "Wallet Score", "value": 1 },
+    { "trait_type": "Most Held Token", "value": "$DOGE" },
+    { "trait_type": "Degen Type", "value": "Top Signal" }
+  ]
+} 

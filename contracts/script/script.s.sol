@@ -1,13 +1,18 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.24;
 
 import "forge-std/Script.sol";
-import "../src/contract.sol";
+import {WalletPersonalityNFT} from "../src/contract.sol";
 
-contract Deploy is Script {
-    function run() external {
+contract DeployScript is Script {
+    function setUp() public {}
+
+    function run() public {
         vm.startBroadcast();
-        new OnchainPsychNFT();
+
+        WalletPersonalityNFT nft = new WalletPersonalityNFT(msg.sender);
+        console2.log("Contract deployed at:", address(nft));
+
         vm.stopBroadcast();
     }
 }

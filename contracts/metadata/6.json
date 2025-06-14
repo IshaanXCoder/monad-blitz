@@ -1,0 +1,10 @@
+{
+  "name": "Degen Personality #6: Farm Zombie",
+  "description": "Moves from one farm to another every 2 days.",
+  "image": "ipfs://bafybeigd75sz7defee27s22uf7jm5egefdnndcufdlw65znxsxslzo4dfa/6.png",
+  "attributes": [
+    { "trait_type": "Wallet Score", "value": 2 },
+    { "trait_type": "Most Held Token", "value": "$CRV" },
+    { "trait_type": "Degen Type", "value": "Farm Zombie" }
+  ]
+} 

@@ -1,0 +1,10 @@
+{
+  "name": "Degen Personality #4: Gamble Goblin",
+  "description": "Constant interaction with lottery/shitcoin contracts.",
+  "image": "ipfs://bafybeigd75sz7defee27s22uf7jm5egefdnndcufdlw65znxsxslzo4dfa/4.png",
+  "attributes": [
+    { "trait_type": "Wallet Score", "value": 1 },
+    { "trait_type": "Most Held Token", "value": "$RLB" },
+    { "trait_type": "Degen Type", "value": "Gamble Goblin" }
+  ]
+} 

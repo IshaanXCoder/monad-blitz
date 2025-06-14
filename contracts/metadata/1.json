@@ -1,0 +1,10 @@
+{
+  "name": "Degen Personality #1: Banana Buyer",
+  "description": "Buys only when everyone else already did.",
+  "image": "ipfs://bafybeigd75sz7defee27s22uf7jm5egefdnndcufdlw65znxsxslzo4dfa/1.png",
+  "attributes": [
+    { "trait_type": "Wallet Score", "value": 3 },
+    { "trait_type": "Most Held Token", "value": "$PEPE" },
+    { "trait_type": "Degen Type", "value": "Banana Buyer" }
+  ]
+}

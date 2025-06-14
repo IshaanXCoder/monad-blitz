@@ -1,0 +1,10 @@
+{
+  "name": "Degen Personality #3: Bottom Seller",
+  "description": "Always exits before price pumps.",
+  "image": "ipfs://bafybeigd75sz7defee27s22uf7jm5egefdnndcufdlw65znxsxslzo4dfa/3.png",
+  "attributes": [
+    { "trait_type": "Wallet Score", "value": 2 },
+    { "trait_type": "Most Held Token", "value": "$USDT" },
+    { "trait_type": "Degen Type", "value": "Bottom Seller" }
+  ]
+} 
