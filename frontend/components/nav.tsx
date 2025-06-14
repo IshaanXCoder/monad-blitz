@@ -14,7 +14,7 @@ export function Nav() {
         </Link>
         <div className="flex gap-6">
           {[
-            { href: "/wallet", icon: Wallet, label: "Connect Wallet" },
+            { href: "/wallet", icon: Wallet, label: "Get Reality Check" },
             { href: "/chat", icon: Brain, label: "Therapy Chat" },
           ].map(({ href, icon: Icon, label }) => (
             <Link

@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useAccount } from "wagmi"
 import { Nav } from "@/components/nav"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -45,6 +46,7 @@ export default function ChatPage() {
   ])
   const [input, setInput] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const { address, isConnected } = useAccount()
 
   const sendMessage = async () => {
     if (!input.trim()) return
@@ -86,6 +88,13 @@ export default function ChatPage() {
       <div className="flex-1 pt-24 pb-12 px-4">
         <div className="max-w-2xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-center md:text-left">
+            {isConnected && (
+              <div className="mb-4 flex items-center justify-center md:justify-start">
+                <span className="bg-muted text-xs font-mono px-3 py-1 rounded-full border border-border">
+                  Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
+                </span>
+              </div>
+            )}
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Cope <span className="text-primary">Session with Dr. Wojak</span>
             </h1>
