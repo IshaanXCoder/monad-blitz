@@ -3,10 +3,10 @@ from langchain_core.prompts import PromptTemplate
 from langchain_google_genai import GoogleGenerativeAI
 from dotenv import load_dotenv
 from cleaner import clean_and_parse_json
-
+from flask_cors import CORS
 app = Flask(__name__)
 load_dotenv() 
-
+CORS(app)
 llm = GoogleGenerativeAI(model="gemini-2.5-flash-preview-04-17", temperature=0.8)
 
 prompt_template = PromptTemplate(

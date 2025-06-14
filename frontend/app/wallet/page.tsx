@@ -11,26 +11,41 @@ export default function WalletPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    setLoading(true)
-    setError(null)
-    setTransactions(null)
-    fetch("http://localhost:5000/analyze-transactions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}), // No address, backend should use a default or mock
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("API error")
-        const json = await res.json()
-        if (json && json.error) throw new Error(json.error)
-        setTransactions(json && Array.isArray(json) ? json : [json])
-      })
-      .catch((e: any) => {
-        setError(e.message || "Failed to fetch transactions")
-      })
-      .finally(() => setLoading(false))
-  }, [])
+useEffect(() => {
+  const sendTransactions = async () => {
+    setLoading(true);
+    setError(null);
+    setTransactions(null);
+
+    try {
+      // Load transactions.json from public folder
+      const response = await fetch("/transactions.json");
+      if (!response.ok) throw new Error("Failed to load transactions.json");
+      const transactionsData = await response.json();
+      console.log("Transactions data loaded:", transactionsData);
+
+      // Send transaction data to backend
+      const apiRes = await fetch("http://localhost:5000/analyze-transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(transactionsData),
+      });
+
+      if (!apiRes.ok) throw new Error("API error");
+
+      const json = await apiRes.json();
+      if (json && json.error) throw new Error(json.error);
+
+      setTransactions(Array.isArray(json) ? json : [json]);
+    } catch (e: any) {
+      setError(e.message || "Failed to fetch transactions");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  sendTransactions();
+}, []);
 
   return (
     <main className="min-h-screen">
